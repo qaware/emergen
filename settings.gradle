@@ -1,0 +1,3 @@
+rootProject.name = 'emergen'
+
+include 'emergen-core'

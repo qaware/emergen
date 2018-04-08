@@ -1,0 +1,16 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'jacoco'
+}
+
+subprojects {
+    repositories {
+        jcenter()
+    }
+}
