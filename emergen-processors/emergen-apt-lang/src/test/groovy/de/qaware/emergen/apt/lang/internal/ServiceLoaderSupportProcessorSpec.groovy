@@ -21,8 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package de.qaware.emergen.apt.lang
+package de.qaware.emergen.apt.lang.internal
 
+import de.qaware.emergen.apt.lang.ServiceImplementation
+import de.qaware.emergen.apt.lang.ServiceInterface
 import spock.lang.Specification
 import spock.lang.Title
 
