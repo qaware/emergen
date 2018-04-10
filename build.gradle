@@ -9,6 +9,9 @@ buildscript {
         classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
     }
 }
+plugins {
+    id "org.sonarqube" version "2.6.1"
+}
 
 subprojects {
     apply plugin: 'java'
@@ -17,7 +20,7 @@ subprojects {
     apply plugin: "com.github.hierynomus.license"
 
     license {
-        header file('../LICENSE')
+        header rootProject.file('LICENSE')
         includes(["**/*.java", "**/*.groovy"])
         mapping {
             java = 'SLASHSTAR_STYLE'

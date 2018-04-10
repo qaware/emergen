@@ -3,3 +3,5 @@ rootProject.name = 'emergen'
 include 'emergen-core'
 include 'emergen-freemarker'
 include 'emergen-velocity'
+
+include 'emergen-processors:emergen-apt-lang'
