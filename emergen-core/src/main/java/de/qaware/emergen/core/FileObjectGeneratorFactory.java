@@ -40,7 +40,7 @@ public interface FileObjectGeneratorFactory {
      * @throws IllegalArgumentException of the template is not supported
      */
     static FileObjectGenerator getInstance(final String template) {
-        ServiceLoader<FileObjectGenerator> generators = ServiceLoader.load(FileObjectGenerator.class);
+        ServiceLoader<FileObjectGenerator> generators = ServiceLoader.load(FileObjectGenerator.class, FileObjectGenerator.class.getClassLoader());
         generators.reload();
 
         for (FileObjectGenerator generator : generators) {
