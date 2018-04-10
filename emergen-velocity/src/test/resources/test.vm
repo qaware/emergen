@@ -1,1 +1,1 @@
-${greeting}
+Content: ${greeting}
