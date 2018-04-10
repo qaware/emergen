@@ -1,4 +1,12 @@
 language: java
+sudo: false
+install: true
+
+addons:
+  sonarcloud:
+    organization: "lreimer-github"
+    token:
+      secure: "JvQyVBefeIM2DG0q8YQNjXhcR0vdvKTXbT1Z+c7KtxpakhTf/AmYf1x3xHuEEZ4Y09Fr7bBffbLV3Juby6Pf9zKFSIzQB8CR3/4s+xGsSYaCj3jgW5JF3NUWiRMOA8D7woaUgnU6nNYU8eqzb3kQcUfMuie1Q8rYrv+y8t5AOHFP1tYx3fAxh/09TuA1THdP+REb9M1gsB+8ikvzYzVpCWT6vY925yIPoWSZ4eFSDTX+jwsWs2c9Up0zRR5PXtTCFf1ufQWgfOqH5mPq53qUGD4iuK4XJhgS5c0uAP8kGpGD9jmzsr2PHhqywHrBay8uRtdyHZQOLX+eKU1t4Yip6GA58jYiODAOm2j3obbzd4xv/Fqj/7SsKbkis9NXrC+UhHR5i7rumLTroGaPR1N9mCjzM59fr0yfzv6SXLe0o0zFHcog4eHvLkb0URnBArA787nkYwC9LDhWa2ba6fZynHYU+1DGcVeYzEs94VfchQKyzJRWdTsAk60K8yhi2WgK2yKUv9iqj3ex5QvD3tnfYYFt5ZgmZquqA7dgKWIUCH40J8HjPWZWucLacevpAQelpV7HCD1g3ca+gtRvF02zZ6fLj6tDnTSfrnpfxQ7Oh2AsX8jcqp5YCOyYXrpARoFLkHUJenRU/zAnFjCfZctf11Loh0gzMfvMXXNeDQsJmZg="
 
 jdk:
   - oraclejdk8
@@ -7,9 +15,11 @@ jdk:
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+    - '$HOME/.sonar/cache'
+    - '$HOME/.gradle'
+    - '.gradle'
 
-script: ./gradlew build
+script: ./gradlew build sonarqube
