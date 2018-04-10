@@ -30,7 +30,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
-import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
@@ -55,7 +54,7 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
             return false;
         }
 
-        Map<String, List<String>> services = new HashMap<String, List<String>>();
+        Map<String, List<String>> services = new HashMap<>();
         for (TypeElement typeElement : annotations) {
             for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
                 ServiceLoaderSupport serviceAnnotation = element.getAnnotation(ServiceLoaderSupport.class);
@@ -63,7 +62,7 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
                 String serviceInterface = serviceAnnotation.value();
                 if ("".equals(serviceInterface)) {
                     List<? extends TypeMirror> interfaces = ((TypeElement) element).getInterfaces();
-                    if (interfaces.size() > 0) {
+                    if (!interfaces.isEmpty()) {
                         TypeMirror interfaceMirror = interfaces.get(0);
                         Element interfaceElement = ((DeclaredType) interfaceMirror).asElement();
                         serviceInterface = ((TypeElement) interfaceElement).getQualifiedName().toString();
@@ -83,20 +82,14 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
         Messager messager = processingEnv.getMessager();
         Filer filer = processingEnv.getFiler();
         for (Map.Entry<String, List<String>> service : services.entrySet()) {
-            FileObject fileObject;
-            Writer writer;
-            try {
-                String filename = BASEPATH.concat(service.getKey());
-                messager.printMessage(Diagnostic.Kind.OTHER, "Writing service file " + filename);
-                fileObject = filer.createResource(StandardLocation.SOURCE_OUTPUT, EMPTY_PACKAGE, filename);
-                writer = fileObject.openWriter();
+            String filename = BASEPATH.concat(service.getKey());
+            messager.printMessage(Diagnostic.Kind.OTHER, "Writing service file " + filename);
 
+            try (Writer writer = filer.createResource(StandardLocation.SOURCE_OUTPUT, EMPTY_PACKAGE, filename).openWriter()) {
                 for (String implementation : service.getValue()) {
                     writer.write(implementation);
                     writer.write(System.getProperty(LINE_SEPARATOR));
                 }
-
-                writer.close();
             } catch (IOException e) {
                 messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
                 throw new IllegalArgumentException(e);
