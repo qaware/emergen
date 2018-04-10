@@ -58,15 +58,9 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
         for (TypeElement typeElement : annotations) {
             for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
                 ServiceLoaderSupport serviceAnnotation = element.getAnnotation(ServiceLoaderSupport.class);
-
                 String serviceInterface = serviceAnnotation.value();
                 if ("".equals(serviceInterface)) {
-                    List<? extends TypeMirror> interfaces = ((TypeElement) element).getInterfaces();
-                    if (!interfaces.isEmpty()) {
-                        TypeMirror interfaceMirror = interfaces.get(0);
-                        Element interfaceElement = ((DeclaredType) interfaceMirror).asElement();
-                        serviceInterface = ((TypeElement) interfaceElement).getQualifiedName().toString();
-                    }
+                    serviceInterface = getDefaultServiceInterface((TypeElement) element);
                 }
 
                 if (!services.containsKey(serviceInterface)) {
@@ -82,21 +76,36 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
         Messager messager = processingEnv.getMessager();
         Filer filer = processingEnv.getFiler();
         for (Map.Entry<String, List<String>> service : services.entrySet()) {
-            String filename = BASEPATH.concat(service.getKey());
-            messager.printMessage(Diagnostic.Kind.OTHER, "Writing service file " + filename);
-
-            try (Writer writer = filer.createResource(StandardLocation.SOURCE_OUTPUT, EMPTY_PACKAGE, filename).openWriter()) {
-                for (String implementation : service.getValue()) {
-                    writer.write(implementation);
-                    writer.write(System.getProperty(LINE_SEPARATOR));
-                }
-            } catch (IOException e) {
-                messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
-                throw new IllegalArgumentException(e);
-            }
+            writeServiceFile(service, filer, messager);
         }
 
         return true;
+    }
+
+    private void writeServiceFile(Map.Entry<String, List<String>> service, Filer filer, Messager messager) {
+        String filename = BASEPATH.concat(service.getKey());
+        messager.printMessage(Diagnostic.Kind.OTHER, "Writing service file " + filename);
+
+        try (Writer writer = filer.createResource(StandardLocation.SOURCE_OUTPUT, EMPTY_PACKAGE, filename).openWriter()) {
+            for (String implementation : service.getValue()) {
+                writer.write(implementation);
+                writer.write(System.getProperty(LINE_SEPARATOR));
+            }
+        } catch (IOException e) {
+            messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+            throw new IllegalArgumentException("Error writing service file.", e);
+        }
+    }
+
+    private String getDefaultServiceInterface(TypeElement element) {
+        List<? extends TypeMirror> interfaces = element.getInterfaces();
+        if (interfaces.isEmpty()) {
+            return "";
+        }
+
+        TypeMirror interfaceMirror = interfaces.get(0);
+        Element interfaceElement = ((DeclaredType) interfaceMirror).asElement();
+        return ((TypeElement) interfaceElement).getQualifiedName().toString();
     }
 
     /**
