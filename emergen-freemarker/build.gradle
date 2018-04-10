@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':emergen-core')
+    compile 'org.freemarker:freemarker:2.3.28'
+}

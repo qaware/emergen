@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':emergen-core')
+    compile 'org.apache.velocity:velocity-engine-core:2.0'
+}

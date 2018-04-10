@@ -1,3 +1,5 @@
 rootProject.name = 'emergen'
 
 include 'emergen-core'
+include 'emergen-freemarker'
+include 'emergen-velocity'
