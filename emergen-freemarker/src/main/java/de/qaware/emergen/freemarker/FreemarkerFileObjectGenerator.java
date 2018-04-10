@@ -75,7 +75,7 @@ public class FreemarkerFileObjectGenerator extends AbstractFileObjectGenerator {
             Template template = configuration.getTemplate(getTemplate());
             template.process(context, writer);
         } catch (TemplateException e) {
-            throw new IOException(e);
+            throw new IOException("Unable to get and process template.", e);
         } finally {
             if (autoClose) {
                 writer.close();
