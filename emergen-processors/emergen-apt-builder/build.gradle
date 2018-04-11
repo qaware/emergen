@@ -1,0 +1,17 @@
+dependencies {
+    compile 'org.apache.commons:commons-lang3:3.7'
+
+    compile project(':emergen-core')
+    runtime project(':emergen-velocity')
+
+    testCompileOnly project(':emergen-velocity')
+}
+
+def outputDir = "$buildDir/generated/test/java"
+
+tasks.getByName(sourceSets.test.compileJavaTaskName) {
+    doFirst {
+        project.mkdir(outputDir)
+    }
+    options.compilerArgs += ['-s', outputDir]
+}

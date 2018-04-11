@@ -6,5 +6,3 @@ include 'emergen-velocity'
 
 include 'emergen-processors:emergen-apt-builder'
 include 'emergen-processors:emergen-apt-lang'
-
-include 'emergen-samples:emergen-sample-builder'

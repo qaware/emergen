@@ -1,0 +1,118 @@
+package ${builder.implementationPackage};
+
+import ${pojo.qualifiedName};
+
+import javax.annotation.Generated;
+
+/**
+* A Builder implementation for the ${pojo.simpleName} pojo.
+*
+* @author Java EmerGen Annotation Processor
+*/
+@Generated("Java EmerGen Annotation Processor")
+public class ${builder.implementationName} implements Cloneable {
+
+private ${pojo.simpleName} instance = null;
+#foreach($builderProperty in $builder.builderProperties)
+private ${builderProperty.type} ${builderProperty.name}#if($builderProperty.withDefaultValue) = ${builderProperty.defaultValue}#end;
+#end
+#foreach($builderProperty in $builder.builderProperties)
+
+/**
+* Initialize the ${builderProperty.name}.
+*
+* @param ${builderProperty.name} the ${builderProperty.name}
+* @return this builder
+*/
+public ${builder.implementationName} ${builderProperty.methodName}(final ${builderProperty.type} ${builderProperty.name}) {
+this.${builderProperty.name} = ${builderProperty.name};
+return this;
+}
+#end
+
+/**
+* Returns a copy of this builder instance.
+*
+* @return the builder instance
+*/
+public ${builder.implementationName} but() {
+try {
+return (${builder.implementationName}) super.clone();
+} catch (CloneNotSupportedException e) {
+throw new IllegalStateException(e);
+}
+}
+
+/**
+* Set the used ${pojo.simpleName} instance for this builder to the
+* specified value.
+*
+* @param instance the instance to use and initialize
+* @return the builder instance
+*/
+public ${builder.implementationName} using(${pojo.simpleName} instance) {
+this.instance = instance;
+return this;
+}
+
+/**
+* Build a new ${pojo.simpleName}> instance.
+*
+* @return a ${pojo.simpleName}>
+*/
+public ${pojo.simpleName} build() {
+## gather all constructor args
+#set ( $constructorArgs = [])
+#foreach($builderProperty in $builder.builderProperties)
+    #if($builderProperty.constructorAccessor)
+        #if($constructorArgs.add($builderProperty))#**##end
+    #end
+#end
+## sort constructor args
+#set ($constructorArgs = $sorter.sort($objects, "constructorPos"))
+if (instance == null) {
+instance = new ${pojo.simpleName}(#foreach($arg in $constructorArgs) $arg.name #if($velocityHasNext), #end #end);
+}
+#foreach($builderProperty in $builder.builderProperties)
+    #if($builderProperty.directAccessor)
+    instance.${builderProperty.name} = ${builderProperty.name};
+    #elseif($builderProperty.setterAccessor)
+    instance.${builderProperty.setterName}(${builderProperty.name});
+    #elseif($builderProperty.constructorAccessor)
+    ## do nothing
+    #else
+    try {
+    java.lang.reflect.Field field = ${pojo.simpleName}.class.getDeclaredField("${builderProperty.name}");
+    field.setAccessible(true);
+    field.set(instance, ${builderProperty.name});
+    } catch (NoSuchFieldException e) {
+    // will never happend
+    } catch (IllegalAccessException e) {
+    // will never happend
+    }
+    #end
+#end
+return instance;
+}
+
+/**
+* Factory method to create a ${builder.implementationName} instance using the
+* specified .
+*
+* @param instance the ${pojo.simpleName} instance
+* @return a builder instance
+*/
+public static ${builder.implementationName} ${builder.uncapitalizedEntityName}(final ${pojo.simpleName} instance) {
+return new ${builder.implementationName}().using(instance);
+}
+
+/**
+* Factory method to create a ${builder.implementationName} instance.
+*
+* @return a builder instance
+*/
+public static ${builder.implementationName} a${pojo.simpleName}() {
+return new ${builder.implementationName}();
+}
+
+}
