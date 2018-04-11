@@ -23,41 +23,49 @@
  */
 package de.qaware.emergen.apt.builder;
 
-@BuilderSupport
-public class TestPojo {
+@BuilderSupport(implementationPackage = "de.qaware.emergen.apt.builder")
+public class ComplexPojo {
 
-    @BuilderProperty
-    private String hello;
-    @BuilderProperty
-    private String world;
+    @BuilderProperty(prefix = "use", propertyAccess = BuilderProperty.AccessStrategy.DIRECT)
+    public String publicString;
+
+    @BuilderProperty(propertyAccess = BuilderProperty.AccessStrategy.CONSTRUCTOR)
+    private Integer parameter1;
+
+    @BuilderProperty(constructorPos = 1, propertyAccess = BuilderProperty.AccessStrategy.CONSTRUCTOR)
+    private final boolean parameter2;
+
+    private String[] arrayOfString;
 
     @BuilderProperty(include = false)
-    private String ignored;
+    private double ignored;
 
-    @BuilderProperty(defaultValue = "4711", propertyAccess = BuilderProperty.AccessStrategy.DIRECT)
-    public int counter;
-
-    public String getHello() {
-        return hello;
+    public ComplexPojo(Integer parameter1, boolean parameter2) {
+        this.parameter1 = parameter1;
+        this.parameter2 = parameter2;
     }
 
-    public void setHello(String hello) {
-        this.hello = hello;
+    public Integer getParameter1() {
+        return parameter1;
     }
 
-    public String getWorld() {
-        return world;
+    public boolean isParameter2() {
+        return parameter2;
     }
 
-    public void setWorld(String world) {
-        this.world = world;
+    public String[] getArrayOfString() {
+        return arrayOfString;
     }
 
-    public String getIgnored() {
+    public void setArrayOfString(String[] arrayOfString) {
+        this.arrayOfString = arrayOfString;
+    }
+
+    public double getIgnored() {
         return ignored;
     }
 
-    public void setIgnored(String ignored) {
+    public void setIgnored(double ignored) {
         this.ignored = ignored;
     }
 }

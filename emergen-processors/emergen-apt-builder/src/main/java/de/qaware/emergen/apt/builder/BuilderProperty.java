@@ -39,7 +39,7 @@ public @interface BuilderProperty {
      * The property access strategy for the builder.
      */
     enum AccessStrategy {
-        DIRECT, SETTER, REFLECTION, CONSTRUCTOR
+        DIRECT, SETTER, CONSTRUCTOR
     }
 
     /**

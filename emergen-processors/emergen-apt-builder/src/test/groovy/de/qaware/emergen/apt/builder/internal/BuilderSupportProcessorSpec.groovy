@@ -59,7 +59,7 @@ class BuilderSupportProcessorSpec extends Specification {
         new BuilderSupportProcessor().supportedSourceVersion == SourceVersion.latestSupported()
     }
 
-    def "Annotation processing"() {
+    def "Annotation processing TestPojo"() {
         given:
         def compilation = javac()
                 .withProcessors(new BuilderSupportProcessor())
@@ -68,5 +68,16 @@ class BuilderSupportProcessorSpec extends Specification {
         expect:
         compilation.status() == Compilation.Status.SUCCESS
         compilation.generatedSourceFile("test.TestPojoBuilder").isPresent()
+    }
+
+    def "Annotation processing ComplexPojo"() {
+        given:
+        def compilation = javac()
+                .withProcessors(new BuilderSupportProcessor())
+                .compile(JavaFileObjects.forResource("ComplexPojo.java"))
+
+        expect:
+        compilation.status() == Compilation.Status.SUCCESS
+        compilation.generatedSourceFile("de.qaware.emergen.apt.builder.ComplexPojoBuilder").isPresent()
     }
 }

@@ -30,8 +30,10 @@ import org.apache.commons.lang3.StringUtils;
 import javax.lang.model.element.Element;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The data model bean to represent the Builder. Used during generation.
@@ -76,7 +78,7 @@ public class BuilderModel {
      *
      * @return the uncapitalized entity name
      */
-    public String getUncapitalizedEntityName() {
+    public String getUncapitalizedPojoName() {
         return String.valueOf(Character.toLowerCase(entityName.charAt(0))) + entityName.substring(1);
     }
 
@@ -99,5 +101,22 @@ public class BuilderModel {
      */
     public String getCanonicalImplementationName() {
         return MessageFormat.format(CANONICAL_FORMAT, implementationPackage, implementationName);
+    }
+
+    /**
+     * Get a view on the builder properties that are constructor args.
+     *
+     * @return list of constructor args
+     */
+    public List<BuilderPropertyModel> getConstructorArgs() {
+        return builderProperties.stream()
+                .filter(BuilderPropertyModel::isConstructorAccessor)
+                .sorted(Comparator.comparing(BuilderPropertyModel::getConstructorPos))
+                .collect(Collectors.toList());
+    }
+
+    public String getConstructorSignature() {
+        List<String> names = getConstructorArgs().stream().map(BuilderPropertyModel::getName).collect(Collectors.toList());
+        return String.join(", ", names);
     }
 }
