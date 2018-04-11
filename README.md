@@ -1,6 +1,7 @@
 # EmerGen
 
 [![Build Status](https://travis-ci.org/qaware/emergen.svg?branch=master)](https://travis-ci.org/qaware/emergen)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=de.qaware.emergen%3Aemergen&metric=alert_status)](https://sonarcloud.io/dashboard?id=de.qaware.emergen%3Aemergen)
 [![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)]()
 
 An emergent design generator framework based on Java APT. The `emergen-core` provides
