@@ -23,12 +23,17 @@
  */
 package de.qaware.emergen.apt.lang.internal
 
+import com.google.testing.compile.Compilation
+import com.google.testing.compile.JavaFileObjects
 import de.qaware.emergen.apt.lang.ServiceImplementation
 import de.qaware.emergen.apt.lang.ServiceInterface
 import spock.lang.Specification
 import spock.lang.Title
 
 import javax.lang.model.SourceVersion
+import javax.tools.StandardLocation
+
+import static com.google.testing.compile.Compiler.javac
 
 @Title("Test specification for the ServiceLoaderSupport annotation processor")
 class ServiceLoaderSupportProcessorSpec extends Specification {
@@ -43,11 +48,25 @@ class ServiceLoaderSupportProcessorSpec extends Specification {
         iterator.next() instanceof ServiceImplementation
     }
 
-    def "GetSupportedSourceVersion"() {
+    def "Get supported SourceVersion"() {
         given:
         def processor = new ServiceLoaderSupportProcessor()
 
         expect:
         processor.supportedSourceVersion == SourceVersion.latestSupported()
     }
+
+    def "Annotation processing"() {
+        given:
+        def compilation = javac()
+                .withProcessors(new ServiceLoaderSupportProcessor())
+                .compile(JavaFileObjects.forResource("ServiceInterface.java"),
+                JavaFileObjects.forResource("ServiceImplementation.java"))
+
+        expect:
+        compilation.status() == Compilation.Status.SUCCESS
+        compilation.generatedFiles().size() == 3
+        compilation.generatedFile(StandardLocation.SOURCE_OUTPUT, "META-INF/services/de.qaware.emergen.apt.lang.ServiceInterface").isPresent()
+    }
+
 }

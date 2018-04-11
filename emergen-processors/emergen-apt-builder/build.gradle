@@ -5,6 +5,8 @@ dependencies {
     runtime project(':emergen-velocity')
 
     testCompileOnly project(':emergen-velocity')
+    testCompile 'com.google.testing.compile:compile-testing:0.15'
+    testCompile 'com.google.truth:truth:0.40'
 }
 
 def outputDir = "$buildDir/generated/test/java"

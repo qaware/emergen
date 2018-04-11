@@ -23,10 +23,50 @@
  */
 package de.qaware.emergen.apt.builder.internal
 
+import com.google.testing.compile.Compilation
+import com.google.testing.compile.JavaFileObjects
 import spock.lang.Specification
+import spock.lang.Title
 
+import javax.lang.model.SourceVersion
+
+import static com.google.testing.compile.Compiler.javac
+
+@Title('Test specification for the Builder support annotation processor')
 class BuilderSupportProcessorSpec extends Specification {
-    def "GetSupportedSourceVersion"() {
 
+    static String TEST_POJO = """
+    package test;
+    
+    @de.qaware.emergen.apt.builder.BuilderSupport
+    public class TestPojo {
+    
+        @de.qaware.emergen.apt.builder.BuilderProperty
+        private String hello;
+     
+        public String getHello() {
+            return hello;
+        }
+
+        public void setHello(String hello) {
+            this.hello = hello;
+        }
+    }
+    """
+
+    def "Get supported SourceVersion"() {
+        expect:
+        new BuilderSupportProcessor().supportedSourceVersion == SourceVersion.latestSupported()
+    }
+
+    def "Annotation processing"() {
+        given:
+        def compilation = javac()
+                .withProcessors(new BuilderSupportProcessor())
+                .compile(JavaFileObjects.forSourceString("test.TestPojo", TEST_POJO))
+
+        expect:
+        compilation.status() == Compilation.Status.SUCCESS
+        compilation.generatedSourceFile("test.TestPojoBuilder").isPresent()
     }
 }
