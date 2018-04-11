@@ -59,7 +59,7 @@ public class BuilderSupportProcessor extends AbstractProcessor {
             return false;
         }
 
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
 
         FileObjectGenerator generator = FileObjectGeneratorFactory.getInstance(BUILDER_IMPLEMENTATION_TEMPLATE);
 
@@ -118,7 +118,7 @@ public class BuilderSupportProcessor extends AbstractProcessor {
      * @return the list of BuilderProperty annotations
      */
     private Map<Element, BuilderProperty> getBuilderProperties(final Element element) {
-        Map<Element, BuilderProperty> builderProperties = new HashMap<Element, BuilderProperty>();
+        Map<Element, BuilderProperty> builderProperties = new HashMap<>();
         for (Element child : element.getEnclosedElements()) {
             BuilderProperty builderProperty = child.getAnnotation(BuilderProperty.class);
             if (builderProperty != null) {
