@@ -28,7 +28,7 @@ import de.qaware.emergen.apt.enforcer.EnforcerSupport;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -37,7 +37,13 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.tools.Diagnostic;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,10 +51,33 @@ import java.util.Set;
  *
  * @author lreimer
  */
-@SupportedAnnotationTypes({"de.qaware.emergen.apt.enforcer.EnforcerSupport"})
+@SupportedOptions({DesignEnforcerProcessor.ENFORCER_ANNOTATIONS, DesignEnforcerProcessor.ENFORCER_RULES})
 public class DesignEnforcerProcessor extends AbstractProcessor {
 
+    /**
+     * The annotations the enforcer APT should check. Comma separated list of fully
+     * qualified annotation class names.
+     */
+    public static final String ENFORCER_ANNOTATIONS = "enforcer.annotations";
+
+    /**
+     * The path to a JavaScript file that implements the rules to enforce. The file must define one method:
+     * <code>
+     * var enforce = function (annotation, element) {
+     * if (annotation.getQualifiedName() == "de.qaware.emergen.apt.enforcer.EnforcerSupport") {
+     * // everything OK
+     * return true;
+     * } else {
+     * // not OK
+     * return false;
+     * }
+     * };
+     * </code>
+     */
+    public static final String ENFORCER_RULES = "enforcer.rules";
+
     private ScriptEngine engine;
+    private Set<String> supportedAnnotationTypes;
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -60,7 +89,7 @@ public class DesignEnforcerProcessor extends AbstractProcessor {
         for (TypeElement typeElement : annotations) {
             for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
                 EnforcerSupport enforcerSupport = element.getAnnotation(EnforcerSupport.class);
-                if (!enforcerSupport.value()) {
+                if (enforcerSupport != null && !enforcerSupport.value()) {
                     // skip this element
                     continue;
                 }
@@ -85,11 +114,32 @@ public class DesignEnforcerProcessor extends AbstractProcessor {
         super.init(processingEnv);
 
         engine = new ScriptEngineManager().getEngineByName("nashorn");
+
+        // read the options for this processor
+        Map<String, String> options = processingEnv.getOptions();
+
+        String annotations = options.getOrDefault(ENFORCER_ANNOTATIONS, "de.qaware.emergen.apt.enforcer.EnforcerSupport");
+        this.supportedAnnotationTypes = new HashSet<>(Arrays.asList(annotations.split(",")));
+
+        String rules = options.get(ENFORCER_RULES);
+        InputStream inputStream;
         try {
-            engine.eval(new InputStreamReader(getClass().getResourceAsStream("/rules.js")));
-        } catch (ScriptException e) {
+            if (rules == null) {
+                inputStream = getClass().getResourceAsStream("/rules.js");
+            } else {
+                inputStream = new FileInputStream(rules);
+            }
+
+            // now initialize the JavaScript engine with the rules
+            engine.eval(new InputStreamReader(inputStream));
+        } catch (ScriptException | FileNotFoundException e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }
+    }
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        return supportedAnnotationTypes;
     }
 
     @Override
