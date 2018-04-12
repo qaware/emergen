@@ -5,4 +5,5 @@ include 'emergen-freemarker'
 include 'emergen-velocity'
 
 include 'emergen-processors:emergen-apt-builder'
+include 'emergen-processors:emergen-apt-enforcer'
 include 'emergen-processors:emergen-apt-lang'
