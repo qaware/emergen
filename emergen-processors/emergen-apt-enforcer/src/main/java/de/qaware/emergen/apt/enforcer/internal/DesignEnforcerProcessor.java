@@ -23,11 +23,21 @@
  */
 package de.qaware.emergen.apt.enforcer.internal;
 
+import de.qaware.emergen.apt.enforcer.EnforcerSupport;
+
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.tools.Diagnostic;
+import java.io.InputStreamReader;
 import java.util.Set;
 
 /**
@@ -37,15 +47,49 @@ import java.util.Set;
  */
 @SupportedAnnotationTypes({"de.qaware.emergen.apt.enforcer.EnforcerSupport"})
 public class DesignEnforcerProcessor extends AbstractProcessor {
+
+    private ScriptEngine engine;
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (annotations.isEmpty()) {
             return false;
         }
 
-        // TODO do enforcing
+        Invocable invocable = (Invocable) engine;
+        for (TypeElement typeElement : annotations) {
+            for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
+                EnforcerSupport enforcerSupport = element.getAnnotation(EnforcerSupport.class);
+                if (!enforcerSupport.value()) {
+                    // skip this element
+                    continue;
+                }
+
+                try {
+                    Boolean valid = (Boolean) invocable.invokeFunction("enforce", typeElement, element);
+                    if (!valid) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error enforcing design rules.", element);
+                    }
+                } catch (ScriptException | NoSuchMethodException e) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), element);
+                    return false;
+                }
+            }
+        }
 
         return true;
+    }
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+
+        engine = new ScriptEngineManager().getEngineByName("nashorn");
+        try {
+            engine.eval(new InputStreamReader(getClass().getResourceAsStream("/rules.js")));
+        } catch (ScriptException e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+        }
     }
 
     @Override

@@ -23,5 +23,15 @@
  */
 package de.qaware.emergen.apt.enforcer;
 
+/**
+ * Activating annotation for the design enforcer APT.
+ */
 public @interface EnforcerSupport {
+    /**
+     * Is enforcer enabled or not. Default is enabled, set this to false
+     * if you want to skip the enforcement rules. Temporarily.
+     *
+     * @return if enforcer support is enabled
+     */
+    boolean value() default true;
 }
