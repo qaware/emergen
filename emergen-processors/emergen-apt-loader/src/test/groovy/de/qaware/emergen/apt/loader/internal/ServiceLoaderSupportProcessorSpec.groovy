@@ -38,7 +38,7 @@ import static com.google.testing.compile.Compiler.javac
 @Title("Test specification for the ServiceLoaderSupport annotation processor")
 class ServiceLoaderSupportProcessorSpec extends Specification {
 
-    def "Generate META-INF/services/de.qaware.emergen.apt.lang.ServiceInterface"() {
+    def "Generate META-INF/services/de.qaware.emergen.apt.loader.ServiceInterface"() {
         given:
         def loader = ServiceLoader.load(ServiceInterface)
         def iterator = loader.iterator()
@@ -66,7 +66,7 @@ class ServiceLoaderSupportProcessorSpec extends Specification {
         expect:
         compilation.status() == Compilation.Status.SUCCESS
         compilation.generatedFiles().size() == 3
-        compilation.generatedFile(StandardLocation.SOURCE_OUTPUT, "META-INF/services/de.qaware.emergen.apt.lang.ServiceInterface").isPresent()
+        compilation.generatedFile(StandardLocation.SOURCE_OUTPUT, "META-INF/services/de.qaware.emergen.apt.loader.ServiceInterface").isPresent()
     }
 
 }

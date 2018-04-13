@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  *
  * @author lreimer
  */
-@SupportedAnnotationTypes({"de.qaware.emergen.apt.lang.ServiceLoaderSupport"})
+@SupportedAnnotationTypes({"de.qaware.emergen.apt.loader.ServiceLoaderSupport"})
 public class ServiceLoaderSupportProcessor extends AbstractProcessor {
 
     private static final String EMPTY_PACKAGE = "";
@@ -60,16 +60,9 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
         Map<String, List<String>> services = new HashMap<>();
         for (TypeElement typeElement : annotations) {
             for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
-                ServiceLoaderSupport serviceAnnotation = element.getAnnotation(ServiceLoaderSupport.class);
-                String defaultInterface = serviceAnnotation.value();
-                Set<String> serviceInterfaces;
-                if ("".equals(defaultInterface)) {
-                    serviceInterfaces = getAllServiceInterfaces((TypeElement) element);
-                } else {
-                    serviceInterfaces = Collections.singleton(defaultInterface);
-                }
-
+                Set<String> serviceInterfaces = getServiceInterfaces(element);
                 String implementationName = ((TypeElement) element).getQualifiedName().toString();
+
                 for (String serviceInterface : serviceInterfaces) {
                     if (!services.containsKey(serviceInterface)) {
                         services.put(serviceInterface, new ArrayList<>());
@@ -89,6 +82,20 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
         }
 
         return true;
+    }
+
+    private Set<String> getServiceInterfaces(Element element) {
+        ServiceLoaderSupport serviceAnnotation = element.getAnnotation(ServiceLoaderSupport.class);
+        String defaultInterface = serviceAnnotation.value();
+
+        Set<String> serviceInterfaces;
+        if ("".equals(defaultInterface)) {
+            serviceInterfaces = getAllServiceInterfaces((TypeElement) element);
+        } else {
+            serviceInterfaces = Collections.singleton(defaultInterface);
+        }
+
+        return serviceInterfaces;
     }
 
     private void writeServiceFile(Map.Entry<String, List<String>> service, Filer filer, Messager messager) {
