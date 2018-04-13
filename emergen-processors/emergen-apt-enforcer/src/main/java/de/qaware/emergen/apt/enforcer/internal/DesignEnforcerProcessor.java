@@ -41,10 +41,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An annotation processor implementation to enforcer certain design rules.
@@ -89,13 +86,17 @@ public class DesignEnforcerProcessor extends AbstractProcessor {
         for (TypeElement typeElement : annotations) {
             for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
                 EnforcerSupport enforcerSupport = element.getAnnotation(EnforcerSupport.class);
-                if (enforcerSupport != null && !enforcerSupport.value()) {
-                    // skip this element
+                if (enforcerSupport == null) {
+                    // should not happen, but check anyway
+                    continue;
+                } else if (!enforcerSupport.value()) {
+                    // skip this enforcement
                     continue;
                 }
 
                 try {
-                    Boolean valid = (Boolean) invocable.invokeFunction("enforce", typeElement, element);
+                    String functionName = Objects.toString(enforcerSupport.rule(), "enforce");
+                    Boolean valid = (Boolean) invocable.invokeFunction(functionName, typeElement, element);
                     if (!valid) {
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error enforcing design rules.", element);
                     }
@@ -125,7 +126,7 @@ public class DesignEnforcerProcessor extends AbstractProcessor {
         InputStream inputStream;
         try {
             if (rules == null) {
-                inputStream = getClass().getResourceAsStream("/rules.js");
+                inputStream = getClass().getResourceAsStream("/default-rules.js");
             } else {
                 inputStream = new FileInputStream(rules);
             }

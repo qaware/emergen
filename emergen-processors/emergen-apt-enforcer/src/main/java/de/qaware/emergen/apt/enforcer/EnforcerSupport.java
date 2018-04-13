@@ -39,4 +39,11 @@ public @interface EnforcerSupport {
      * @return if enforcer support is enabled
      */
     boolean value() default true;
+
+    /**
+     * The name of the rule to call during enforcement.
+     *
+     * @return the rule name
+     */
+    String rule() default "enforce";
 }
