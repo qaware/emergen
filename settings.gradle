@@ -6,4 +6,4 @@ include 'emergen-velocity'
 
 include 'emergen-processors:emergen-apt-builder'
 include 'emergen-processors:emergen-apt-enforcer'
-include 'emergen-processors:emergen-apt-lang'
+include 'emergen-processors:emergen-apt-loader'
