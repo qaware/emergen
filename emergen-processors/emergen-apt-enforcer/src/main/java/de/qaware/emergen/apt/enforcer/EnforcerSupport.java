@@ -23,9 +23,14 @@
  */
 package de.qaware.emergen.apt.enforcer;
 
+import java.lang.annotation.*;
+
 /**
  * Activating annotation for the design enforcer APT.
  */
+@Documented
+@Retention(RetentionPolicy.SOURCE)
+@Target(value = {ElementType.PACKAGE, ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.FIELD})
 public @interface EnforcerSupport {
     /**
      * Is enforcer enabled or not. Default is enabled, set this to false
