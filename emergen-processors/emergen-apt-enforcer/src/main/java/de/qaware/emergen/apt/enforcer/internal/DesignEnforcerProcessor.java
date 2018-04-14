@@ -38,7 +38,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.tools.Diagnostic;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -131,17 +131,12 @@ public class DesignEnforcerProcessor extends AbstractProcessor {
         this.supportedAnnotationTypes = new HashSet<>(Arrays.asList(annotations.split(",")));
 
         String rules = options.get(ENFORCER_RULES);
-        InputStream inputStream;
-        try {
-            if (rules == null) {
-                inputStream = getClass().getResourceAsStream("/default-rules.js");
-            } else {
-                inputStream = new FileInputStream(rules);
-            }
+        InputStream defaultRules = getClass().getResourceAsStream("/default-rules.js");
 
+        try (InputStream inputStream = (rules == null) ? defaultRules : new FileInputStream(rules)) {
             // now initialize the JavaScript engine with the rules
             engine.eval(new InputStreamReader(inputStream));
-        } catch (ScriptException | FileNotFoundException e) {
+        } catch (ScriptException | IOException e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }
     }

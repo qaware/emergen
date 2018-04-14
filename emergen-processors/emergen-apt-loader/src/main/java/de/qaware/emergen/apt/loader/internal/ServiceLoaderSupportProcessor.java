@@ -115,11 +115,8 @@ public class ServiceLoaderSupportProcessor extends AbstractProcessor {
 
     private Set<String> getAllServiceInterfaces(TypeElement element) {
         List<? extends TypeMirror> interfaces = element.getInterfaces();
-        if (interfaces.isEmpty()) {
-            return Collections.emptySet();
-        }
 
-        return interfaces.stream().map((interfaceMirror) -> {
+        return interfaces.stream().map(interfaceMirror -> {
             Element interfaceElement = ((DeclaredType) interfaceMirror).asElement();
             return ((TypeElement) interfaceElement).getQualifiedName().toString();
         }).collect(Collectors.toSet());
