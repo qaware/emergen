@@ -154,7 +154,7 @@ With Maven you have to configure the `maven-compiler-plugin` accordingly, like
     <version>3.7.0</version>
     <configuration>
         <compilerArgs>
-          <arg>-Aenforcer.annotations=de.qaware.emergen.apt.builder.BuilderSupport</arg>
+          <arg>-Aenforcer.annotations=de.qaware.emergen.apt.enforcer.EnforcerSupport</arg>
           <arg>-Aenforcer.rules=custom.js</arg>
         </compilerArgs>
     </configuration>
