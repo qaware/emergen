@@ -161,6 +161,27 @@ With Maven you have to configure the `maven-compiler-plugin` accordingly, like
 </plugin>
 ```
 
+The rules are expressed in JavaScript. Refer to https://www.n-k.de/riding-the-nashorn/ for information on the
+specifics of the Nashorn Engine. The basic structure of the enforcement rules looks like this:
+
+```javascript
+/**
+ * Design enforcement function. Checks the current element and annotation.
+ * 
+ * @param {javax.lang.model.element.TypeElement} annotation 
+ *   the currently processed annotation
+ * 
+ * @param {javax.lang.model.element.Element} element 
+ *   the annotated element currently being processed
+ *   
+ * @return true of rules are OK or false if rules are violated
+ */
+var enforce = function (annotation, element) {
+    return true;
+};
+```
+
+
 ## Other References
 
 - https://projectlombok.org
