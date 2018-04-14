@@ -86,16 +86,12 @@ public class DesignEnforcerProcessor extends AbstractProcessor {
         for (TypeElement typeElement : annotations) {
             for (Element element : roundEnv.getElementsAnnotatedWith(typeElement)) {
                 EnforcerSupport enforcerSupport = element.getAnnotation(EnforcerSupport.class);
-                if (enforcerSupport == null) {
-                    // should not happen, but check anyway
-                    continue;
-                } else if (!enforcerSupport.value()) {
-                    // skip this enforcement
+                if (!shouldEnforce(enforcerSupport)) {
                     continue;
                 }
 
                 try {
-                    String functionName = Objects.toString(enforcerSupport.rule(), "enforce");
+                    String functionName = getFunctionName(enforcerSupport);
                     Boolean valid = (Boolean) invocable.invokeFunction(functionName, typeElement, element);
                     if (!valid) {
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error enforcing design rules.", element);
@@ -108,6 +104,18 @@ public class DesignEnforcerProcessor extends AbstractProcessor {
         }
 
         return true;
+    }
+
+    private String getFunctionName(EnforcerSupport enforcerSupport) {
+        if (enforcerSupport != null) {
+            return Objects.toString(enforcerSupport.rule(), "enforce");
+        } else {
+            return "enforce";
+        }
+    }
+
+    private boolean shouldEnforce(EnforcerSupport enforcerSupport) {
+        return enforcerSupport == null || enforcerSupport.value();
     }
 
     @Override

@@ -34,9 +34,42 @@ class DesignEnforcerProcessorSpec extends Specification {
         given:
         def compilation = javac()
                 .withProcessors(new DesignEnforcerProcessor())
+                .withOptions("-Aenforcer.annotations=de.qaware.emergen.apt.enforcer.EnforcerSupport")
                 .compile(JavaFileObjects.forResource("SomeClass.java"))
 
         expect:
         compilation.status() == Compilation.Status.SUCCESS
+    }
+
+    def "Process EnforcerSupport annotation on SkippedClass"() {
+        given:
+        def compilation = javac()
+                .withProcessors(new DesignEnforcerProcessor())
+                .compile(JavaFileObjects.forResource("SkippedClass.java"))
+
+        expect:
+        compilation.status() == Compilation.Status.SUCCESS
+    }
+
+    def "Process EnforcerSupport annotation on TestBean with test-rules.js"() {
+        given:
+        def compilation = javac()
+                .withProcessors(new DesignEnforcerProcessor())
+                .withOptions(
+                "-Aenforcer.annotations=de.qaware.emergen.apt.enforcer.EnforcerSupport", "-Aenforcer.rules=src/test/resources/test-rules.js")
+                .compile(JavaFileObjects.forResource("TestBean.java"))
+
+        expect:
+        compilation.status() == Compilation.Status.FAILURE
+    }
+
+    def "Process EnforcerSupport annotation on TestBean with unknown method"() {
+        given:
+        def compilation = javac()
+                .withProcessors(new DesignEnforcerProcessor())
+                .compile(JavaFileObjects.forResource("TestBean.java"))
+
+        expect:
+        compilation.status() == Compilation.Status.FAILURE
     }
 }
