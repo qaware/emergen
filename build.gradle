@@ -10,6 +10,7 @@ buildscript {
     }
 }
 plugins {
+    id "distribution"
     id "org.sonarqube" version "2.6.1"
 }
 
@@ -17,7 +18,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'groovy'
     apply plugin: 'jacoco'
-    apply plugin: "com.github.hierynomus.license"
+    apply plugin: 'com.github.hierynomus.license'
+    apply plugin: 'maven-publish'
 
     license {
         header rootProject.file('LICENSE')
@@ -38,5 +40,55 @@ subprojects {
     dependencies {
         testCompile "org.codehaus.groovy:groovy-all:2.4.13"
         testCompile "org.spockframework:spock-core:1.1-groovy-2.4"
+    }
+
+    // This disables the pedantic doclint feature of JDK8
+    if (JavaVersion.current().isJava8Compatible()) {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+}
+
+distributions {
+    main {
+    }
+    release {
+        baseName = 'emergen-distribution'
+        contents {
+            from ('emergen-core/build/libs') {
+                include '*.jar'
+            }
+            from ('emergen-freemarker/build/libs') {
+                include '*.jar'
+            }
+            from ('emergen-velocity/build/libs') {
+                include '*.jar'
+            }
+            from ('emergen-processors/emergen-apt-builder/build/libs') {
+                include '*.jar'
+            }
+            from ('emergen-processors/emergen-apt-enforcer/build/libs') {
+                include '*.jar'
+            }
+            from ('emergen-processors/emergen-apt-loader/build/libs') {
+                include '*.jar'
+            }
+        }
     }
 }

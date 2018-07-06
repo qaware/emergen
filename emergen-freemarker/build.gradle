@@ -2,3 +2,71 @@ dependencies {
     compile project(':emergen-core')
     compile 'org.freemarker:freemarker:2.3.28'
 }
+
+def pomConfig = {
+
+    inceptionYear '2018'
+
+    scm {
+        connection "scm:git:${project.scmUrl}"
+        developerConnection "scm:git:${project.scmUrl}"
+        url project.websiteUrl
+    }
+
+    issueManagement {
+        system 'GitHub'
+        url project.issueTrackerUrl
+    }
+
+    licenses {
+        license([:]) {
+            name 'MIT License'
+            url 'https://opensource.org/licenses/MIT'
+            distribution 'repo'
+        }
+    }
+
+    organization {
+        name 'QAware GmbH'
+        url 'https://www.qaware.de'
+    }
+
+    developers {
+        developer {
+            id 'lreimer'
+            name 'Mario-Leander Reimer'
+            email 'mario-leander.reimer@qaware.de'
+            organization 'QAware GmbH'
+            organizationUrl 'https://www.qaware.de'
+            roles { role 'Developer' }
+        }
+    }
+}
+
+publishing {
+    publications {
+        emergenFreemarker(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().appendNode('name', project.displayName)
+                asNode().appendNode('description', project.description)
+                asNode().appendNode('url', project.websiteUrl)
+
+                asNode().children().last() + pomConfig
+            }
+        }
+    }
+    repositories {
+        // set the properties via -P to publish to your company repo
+        maven {
+            url = project.hasProperty('nexusUrl') ? project.nexusUrl : ''
+            credentials {
+                username = project.hasProperty('nexusUsername') ? project.nexusUsername : ''
+                password = project.hasProperty('nexusPassword') ? project.nexusPassword : ''
+            }
+        }
+    }
+}
