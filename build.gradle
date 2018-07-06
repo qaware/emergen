@@ -7,8 +7,10 @@ buildscript {
     }
     dependencies {
         classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     }
 }
+
 plugins {
     id "distribution"
     id "org.sonarqube" version "2.6.1"
@@ -20,6 +22,7 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'maven-publish'
+    apply plugin: "com.jfrog.bintray"
 
     license {
         header rootProject.file('LICENSE')
