@@ -193,6 +193,9 @@ var enforce = function (annotation, element) {
 - https://eng.uber.com/rave/
 - https://github.com/uber-common/rave
 - https://www.logicbig.com/tutorials/core-java-tutorial/java-se-annotation-processing-api/annotation-processor-validation.html
+- https://github.com/square/javapoet
+- https://github.com/derive4j/derive4j
+- https://github.com/immutables/immutables
 
 ## Maintainer
 
